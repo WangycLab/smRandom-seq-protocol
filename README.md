@@ -11,6 +11,7 @@ This guide provides a comprehensive, step-by-step workflow for analyzing single-
 ### 1. Setup and Dependencies
 
 Ensure the following dependencies are installed:
+Required for all samples：
 - **Python 3.8+**: For running custom scripts.
 - **R 4.0+**: For statistical analysis and visualization.
 - **SAMtools**: For sorting and indexing BAM files.
@@ -18,6 +19,16 @@ Ensure the following dependencies are installed:
 - **STAR**: For genome indexing and read alignment.
 - **featureCounts**: For exon-based gene expression counting.
 - **UMI-tools**: For UMI-based read counting.
+Dependencies Based on Sample Type:
+For Human Feces Samples:
+- **MICtools**: Includes modules for taxonomic annotation (MIC-Anno), transcriptional matrix construction (MIC-Bac), and host-phage transcriptional analysis (MIC-Phage).
+- **Kraken2**: For K-mer-based taxonomic classification using the UHGG microbiome genome database.
+- **Bracken**: For calculating taxonomic abundance after Kraken2 classification.
+- **SortMeRNA**: For filtering rRNA and tRNA reads.
+- **BLAST (blastn)**: For phage-host correlation analysis.
+For Bovine Rumen Fluid Samples:
+- **Kraken2**: For K-mer-based taxonomic classification using the UHGG microbiome genome database.
+- **Bracken**: For calculating taxonomic abundance after Kraken2 classification.
 
 ### 2. Sequencing Data Pre-processing
 Process raw FastQ data with `Raw_data_preprocessing.sh` using the custom tool `anchoradp.o` to separate reads, extract barcodes and UMIs, and prepare data for downstream analyses.
