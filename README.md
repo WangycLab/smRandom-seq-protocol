@@ -13,21 +13,21 @@ Ensure the following dependencies are installed:
 #### Required for all samples：
 - **Python 3.8+**: For running custom scripts.
 - **R 4.0+**: For statistical analysis and visualization.
-- **SAMtools**: For sorting and indexing BAM files.
-- **bedtools**: For genomic data manipulation.
-- **STAR**: For genome indexing and read alignment.
-- **featureCounts**: For exon-based gene expression counting.
-- **UMI-tools**: For UMI-based read counting.
+- **Samtools 1.15**: (https://github.com/samtools/samtools) For sorting and indexing BAM files.
+- **bedtools v2.29.2**: For genomic data manipulation.
+- **STAR 2.7.10a**:(https://github.com/alexdobin/STAR) For genome indexing and read alignment.
+- **FeatureCounts 2.0.3**: (https://sourceforge.net/projects/subread) For exon-based gene expression counting.
+- **Umi_tools 1.1.2**: (https://github.com/CGATOxford/UMI-tools) For UMI-based read counting.
 Dependencies Based on Sample Type:
 #### For Human Feces Samples:
 - **MICtools**: Includes modules for taxonomic annotation (MIC-Anno), transcriptional matrix construction (MIC-Bac), and host-phage transcriptional analysis (MIC-Phage).
-- **Kraken2**: For K-mer-based taxonomic classification.
-- **Bracken**: For calculating taxonomic abundance after Kraken2 classification.
-- **SortMeRNA**: For filtering rRNA and tRNA reads.
-- **BLAST (blastn)**: For phage-host correlation analysis.
+- **Kraken2 2.1.2**: (https://github.com/DerrickWood/kraken2) For K-mer-based taxonomic classification.
+- **Bracken 2.6.0**: (https://github.com/jenniferlu717/Bracken) For calculating taxonomic abundance after Kraken2 classification.
+- **Sortmerna 4.3.4**:(https://github.com/sortmerna/sortmerna) For filtering rRNA and tRNA reads.
+- **Sortmerna rRNA reference datasets**：(https://github.com/sortmerna/sortmerna/blob/master/data/rRNA_databases/silva_ids_acc_tax.tar.gz)
 #### For Bovine Rumen Fluid Samples:
-- **Kraken2**: For K-mer-based taxonomic classification.
-- **Bracken**: For calculating taxonomic abundance after Kraken2 classification.
+- **Kraken2 2.1.2**: (https://github.com/DerrickWood/kraken2) For K-mer-based taxonomic classification.
+- **Bracken 2.6.0**: (https://github.com/jenniferlu717/Bracken) For calculating taxonomic abundance after Kraken2 classification.
 - **Trimmomatic**: Used for trimming reverse reads in quality control steps.
   
 ### 2. Sequencing Data Pre-processing
