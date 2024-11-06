@@ -21,14 +21,15 @@ Ensure the following dependencies are installed:
 Dependencies Based on Sample Type:
 #### For Human Feces Samples:
 - **MICtools**: Includes modules for taxonomic annotation (MIC-Anno), transcriptional matrix construction (MIC-Bac), and host-phage transcriptional analysis (MIC-Phage).
-- **Kraken2**: For K-mer-based taxonomic classification using the UHGG microbiome genome database.
+- **Kraken2**: For K-mer-based taxonomic classification.
 - **Bracken**: For calculating taxonomic abundance after Kraken2 classification.
 - **SortMeRNA**: For filtering rRNA and tRNA reads.
 - **BLAST (blastn)**: For phage-host correlation analysis.
 #### For Bovine Rumen Fluid Samples:
-- **Kraken2**: For K-mer-based taxonomic classification using the UHGG microbiome genome database.
+- **Kraken2**: For K-mer-based taxonomic classification.
 - **Bracken**: For calculating taxonomic abundance after Kraken2 classification.
-
+- **Trimmomatic**: Used for trimming reverse reads in quality control steps.
+  
 ### 2. Sequencing Data Pre-processing
 Process raw FastQ data with `Raw_data_preprocessing.sh` using the custom tool `anchoradp.o` to separate reads, extract barcodes and UMIs, and prepare data for downstream analyses.
 
