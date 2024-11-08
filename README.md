@@ -5,7 +5,7 @@ This guide provides a comprehensive, step-by-step workflow for analyzing single-
 1. [Setup and Dependencies](#1-setup-and-dependencies)
 2. [Sequencing Data Pre-processing](#2-sequencing-data-pre-processing)
 3. [Count Matrix Generation](#3-count-matrix-generation)
-4. [Seurat Objects Generation and Process](#4-seurat-objects-generation-and-process)
+4. [Objects Generation and Process](#4-seurat-objects-generation-and-process)
 ---
 
 ### 1. Setup and Dependencies
@@ -143,7 +143,7 @@ bracken -d kraken2_gOTUs_db -i your_prefix_kraken2_report.txt -o your_prefix_bra
 ```
 Cell Classification: Cells with >50% informative reads are considered accurately annotated; cells below this threshold are labeled with the __like flag after the species name.
 
-### 4. Seurat Objects Generation and Process
+### 4. Objects Generation and Process
 ### For Laboratory-Cultured Bacterial Samples:
 #### Reading and Filtering:
 Follow the general scRNA-seq code and standards to read the single-bacteria gene expression matrix into R to generate Seurat objects or python to generate Scanpy objects and perform quality control of the count matrix.
