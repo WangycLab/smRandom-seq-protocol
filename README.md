@@ -1,6 +1,6 @@
 # smRandom-seq Protocol Analysis Workflow
 
-This guide provides a comprehensive, step-by-step workflow for analyzing single-bacteria total-RNA-seq data using smRandom-seq, applicable to various sample types, including laboratory-cultured bacterial samples, human feces, and bovine rumen fluid.
+This guide provides a comprehensive, step-by-step workflow for analyzing single-bacteria total-RNA-seq data using smRandom-seq, applicable to various sample types, including laboratory-cultured microbial samples, human feces, and bovine rumen fluid.
 ## Contents
 1. [Setup and Dependencies](#1-setup-and-dependencies)
 2. [Sequencing Data Pre-processing](#2-sequencing-data-pre-processing)
@@ -19,16 +19,9 @@ Ensure the following dependencies are installed:
 - **FeatureCounts 2.0.3**: (https://sourceforge.net/projects/subread) For exon-based gene expression counting.
 - **Umi_tools 1.1.2**: (https://github.com/CGATOxford/UMI-tools) For UMI-based read counting.
 Dependencies Based on Sample Type:
-#### For Human Feces Samples:
-- **MICtools**: Includes modules for taxonomic annotation (MIC-Anno), transcriptional matrix construction (MIC-Bac), and host-phage transcriptional analysis (MIC-Phage).
+#### For Complex Microbial Samples:
 - **Kraken2 2.1.2**: (https://github.com/DerrickWood/kraken2) For K-mer-based taxonomic classification.
 - **Bracken 2.6.0**: (https://github.com/jenniferlu717/Bracken) For calculating taxonomic abundance after Kraken2 classification.
-- **Sortmerna 4.3.4**:(https://github.com/sortmerna/sortmerna) For filtering rRNA and tRNA reads.
-- **Sortmerna rRNA reference datasets**：(https://github.com/sortmerna/sortmerna/blob/master/data/rRNA_databases/silva_ids_acc_tax.tar.gz)
-#### For Bovine Rumen Fluid Samples:
-- **Kraken2 2.1.2**: (https://github.com/DerrickWood/kraken2) For K-mer-based taxonomic classification.
-- **Bracken 2.6.0**: (https://github.com/jenniferlu717/Bracken) For calculating taxonomic abundance after Kraken2 classification.
-- **Trimmomatic**: Used for trimming reverse reads in quality control steps.
   
 ### 2. Sequencing Data Pre-processing
 Process raw FastQ data with `Raw_data_preprocessing.sh` using the custom tool `anchoradp.o` to separate reads, extract barcodes and UMIs, and prepare data for downstream analyses.
@@ -36,8 +29,10 @@ Process raw FastQ data with `Raw_data_preprocessing.sh` using the custom tool `a
 About `anchoradp.o`:
 Processes raw FastQ data without sequencing adapters.
 Separates Read 1 and Read 2, identifies PCR adapters, and extracts key sequences.
-Read 1: Extracts the 20-bp cell barcode and 8-bp UMI.
-Read 2: Extracts the cDNA sequence.
+
+About `Raw_data_preprocessing.sh`：
+Raw_data_preprocessing.sh uses the custom tool anchoradp.o to preprocess raw FastQ files.
+
 #### Running the Script:
 ```bash
 bash `Raw_data_preprocessing.sh` R1.fastq.gz R2.fastq.gz your_prefix
@@ -49,45 +44,97 @@ gzip your_prefix_1.fq
 gzip your_prefix_2.fq
 ```
 #### Output:
-your_prefix_1.fq.gz: Contains compressed cell barcodes and UMIs.
+your_prefix_1.fq.gz: Contains compressed cell barcodes (20bp) and UMIs (8bp).
 your_prefix_2.fq.gz: Contains compressed cDNA sequences.
+The sequence IDs in your_prefix_1.fq.gz and your_prefix_2.fq.gz are aligned。
 
 ### 3. Count Matrix Generation
 The workflow for genome index creation and read alignment and count matrix generation depends on the sample type.
-### For Laboratory-Cultured Bacterial Samples:
+### For Laboratory-Cultured Microbial Samples:
 Use the `Count_matrix.sh` script to perform all steps of genome index creation, read alignment, and gene expression counting. This script integrates all necessary commands for STAR indexing, alignment, feature counting, and barcode selection into a single workflow.
+
+About `Count_matrix.sh`：
+Genome Index Creation: Uses the STAR aligner to generate genome index files from the input genome FASTA and GTF annotation files. `sjdbOverhang`: Set to 122 for 150-bp paired-end reads. `genomeDir`: Directory where index files are stored.
+Read Alignment: Aligns cDNA sequencing reads `your_prefix_2.fq.gz` to the indexed genome. Outputs sorted BAM files for downstream analysis.
+Gene Expression Counting: Uses `featureCounts` to count gene-level expression by mapping aligned reads to exon regions in the genome annotation. Produces a BAM file containing unique gene alignments.
+Sorting and Indexing BAM Files: `samtools` is used to sort and index the BAM files for fast access.
+UMI-Based Read Counting: Extracts unique molecular identifiers (UMIs) and calculates gene expression per cell using `umi_tools`. Generates a wide-format gene expression matrix.
+Cell Barcode Selection: Uses the Python script `selectResult.py` to filter the expression matrix based on a user-defined cell threshold (thres).
+
 Running `Count_matrix.sh`
 Use the following command to run the script with the required input parameters:
 ```bash
-bash Count_matrix.sh genomeDir=$genomeDir genomeFastaFile=$genomeFastaFile sjdbGTFfile=$sjdbGTFfile sample=$sample thres=$thres
+bash Count_matrix.sh genomeDir=$genomeDir genomeFastaFile=$genomeFastaFile sjdbGTFfile=$sjdbGTFfile your_prefix=$your_prefix thres=$thres
 ```
 #### Input Parameters:
 genomeDir: Directory for STAR genome index files.
-genomeFastaFile: Path to the genome FASTA file.
+genomeFastaFile: Path to the genome FASTA file `your_prefix_2.fq.gz`.
 sjdbGTFfile: Path to the GTF file containing gene annotations.
-sample: Prefix for the sample name (e.g., sample_2.fq.extracted and sample_1.fq.extracted).
+your_prefix: Prefix for the sample name (e.g., your_prefix.fq.extracted).
 thres: Threshold for cell count, usually between 50,00 and 50,000.
 #### Output:
-$sample.counts.tsv
-#### Filter barcodes based on UMI and gene count levels using `selectResult.py` to create a refined count matrix:
-```bash
-python selectResult.py $sample.counts.tsv $thres $sample.selected
-```
-#### Output:
+Expression Matrix: `$your_prefix.counts.tsv` Contains gene expression values for individual cells.
+Filtered Cell Barcodes: `$your_prefix.selected` Contains selected cell barcodes based on the specified threshold.
 
-### For Human Feces Samples:
+### For Complex Microbial Samples:
 Use the `MICtools` pipeline for count matrix generation of human gut microbiome single-microbe RNA sequencing. MICtools provides modules for taxonomic annotation (`MIC-Anno`), transcriptional matrix construction (`MIC-Bac`), and host-phage transcriptional relationship analysis(`MIC-Phage`).
-#### Barcodes selection: Barcode and gene count scatter plots are analyzed to set a threshold for barcode selection. Barcodes beyond the inflection point are filtered out.
-#### Use `MIC-Anno` to process taxonomic annotation for each microbe: MIC-Anno uses a K-mer-based taxonomic classification strategy with Kraken2 and the UHGG gut microbiome genome database. 
+
+#### Barcode Selection
+`Barcodes_selection.py` filters barcodes from FASTQ files. 
+```bash
+python Barcodes_selection.py
+```
+#### Intput:
+`your_prefix_1.fq.gz`
+`your_prefix_2.fq.gz`
+#### Output:
+`your_prefix_1_extracted.fq.gz`: Filtered barcodes and UMIs.
+`your_prefix_2_extracted.fq.gz`: Filtered cDNA sequences.
+Adjust Threshold: Modify the threshold variable in the script to set the minimum UMI count per barcode (e.g., 500 in this example).
+
+#### Taxonomic Annotation
+#### Using MICtools for Human Gut Microbiome and Other Samples
+`MIC-Anno` uses a K-mer-based taxonomic classification strategy with Kraken2 to annotate microbes at the species and genus levels.
 ```bash
 MICtools anno --module pipeline -s your_prefix_2.fq.gz -r [kraken_ref_filepath] -p [your_prefix]
 ```
+#### Intput:
+`your_prefix_2.fq.gz`: FASTQ file containing extracted cDNA sequences.
+`kraken_ref_filepath`: Path to the Kraken2 reference database.
+For human gut microbiome samples, use the UHGG gut microbiome genome database.
+For other complex microbial samples, replace with an appropriate Kraken2 database for your community.
 #### Output:
-your_prefix.barcode_count.txt: Main single microbe taxonomic annotation result and the meanings of each column.
-your_prefix.genus_info.txt: Genus info of each microbe.
-your_prefix.species_info.txt: Species info of each microbe.
-your_prefix_genus.pdf: Pieplot of sample genus composition.
-your_prefix_species.pdf: Pieplot of sample specie composition.
+`your_prefix.barcode_count.txt`: Main single microbe taxonomic annotation result and the meanings of each column.
+`your_prefix.genus_info.txt`: Genus info of each microbe.
+`your_prefix.species_info.txt`: Species info of each microbe.
+`your_prefix_genus.pdf`: Pieplot of sample genus composition.
+`your_prefix_species.pdf`: Pieplot of sample specie composition.
+
+#### For Bovine Rumen Fluid Samples, taxonomic annotation can use a Kraken2-Based gOTUs Database. 
+The bovine gastrointestinal microbial genome database (Bovine Gastro Microbial Genome Map, BGMGM) is available on Figshare at https://figshare.com/articles/dataset/Microbiome_single-cell_transcriptomics_reveal_functional_heterogeneity_of_metabolic_niches_covering_more_than_2_500_species_in_the_rumen/24844344. 
+Create a Kraken2-Based gOTUs Database
+Mask ribosomal RNA genes using Barrnap and bedtools to avoid misclassification:
+```bash
+barrnap <reference_genome.fasta> > rRNA_annotation.gff
+bedtools maskfasta -fi <reference_genome.fasta> -bed rRNA_annotation.gff -fo masked_genomes.fasta
+```
+Build the Kraken2 database:
+```bash
+kraken2-build --no-masking --add-to-library masked_genomes.fasta --db kraken2_gOTUs_db
+```
+Classify Reads by Kraken2:
+```bash
+kraken2 --db kraken2_gOTUs_db --report your_prefix_kraken2_report.txt \
+        --output your_prefix_kraken2_output.txt your_prefix_2_trimmed.fastq.gz
+```
+Calculate Taxonomic Abundance with Bracken:
+```bash
+bracken -d kraken2_gOTUs_db -i your_prefix_kraken2_report.txt -o your_prefix_bracken_output.txt
+```
+Classify cells based on informative reads:
+Cells with >50% informative reads are considered accurately annotated.
+Cells below this threshold are labeled with the __like flag after the species name.
+
 #### Use `MIC-Bac` to construct single microbe transcriptional matrix:
 Abundant Species Filtering: Retains abundant bacterial species (>3% of total barcodes), though users can include all genera if desired.
 Gene Expression Matrix Construction:STAR (v2.7.10a), featureCounts (v2.0.3), and umi_tools (v1.1.2) are used to generate bacterial gene expression matrices with UHGG as a reference.
@@ -144,7 +191,7 @@ bracken -d kraken2_gOTUs_db -i your_prefix_kraken2_report.txt -o your_prefix_bra
 Cell Classification: Cells with >50% informative reads are considered accurately annotated; cells below this threshold are labeled with the __like flag after the species name.
 
 ### 4. Objects Generation and Process
-### For Laboratory-Cultured Bacterial Samples:
+### For Laboratory-Cultured Microbial Samples:
 #### Reading and Filtering:
 Follow the general scRNA-seq code and standards to read the single-bacteria gene expression matrix into R to generate Seurat objects or python to generate Scanpy objects and perform quality control of the count matrix.
 #### For samples treated with antibiotics in smRandom-seq paper, use the following analysis scripts: 
