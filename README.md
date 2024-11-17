@@ -170,6 +170,7 @@ Replace UHGG human gut microbiome genome database with a reference database suit
 
 ### 4. Objects Generation and Process
 This section describes how to process the single-bacteria gene expression matrix and perform downstream analysis for both laboratory-cultured microbial samples and complex microbial samples.
+
 ---
 ### For Laboratory-Cultured Microbial Samples:
 #### Reading and Filtering:
