@@ -187,7 +187,7 @@ For samples treated with antibiotics (as described in the smRandom-seq paper), t
 
 ### For Complex Microbial Samples:
 For complex microbial samples, microbiome transcriptional analysis focuses on major genera and involves dimensional reduction and clustering. Seurat (v4) can be used for these analyses, as demonstrated in the following scripts:
-`MIC-Bac/microbiome_transcriptional_analysis.R`: Provides an example workflow for human feces samples, including clustering and visualization.
+`microbiome_transcriptional_analysis.R`: Provides an example workflow for human feces samples, including clustering and visualization.
 `Reading_and_Filtering.R`: An example for microbial further analysis of the Bovine Rumen Fluid Samples, including reading the single-cell gene expression matrix into R, creating Seurat objects, and performing quality control to filters out low-quality cells and retains high-quality cells. 
 `MscT_initial_matrix.R`: An example for benchmarking and clustering on the Seurat objects of the Bovine Rumen Fluid Samples. 
 `MscT_HMACs.R`: An example for identifing and isolates cells with high metabolic activity (HMACs) within the dataset. Re-clusters these cells to analyze specific metabolic functions and activities. 
