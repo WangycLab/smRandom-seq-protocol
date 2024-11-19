@@ -127,31 +127,6 @@ For human gut microbiome samples, use the UHGG gut microbiome genome database. F
 `your_prefix_genus.pdf`: Pieplot of sample genus composition.
 `your_prefix_species.pdf`: Pieplot of sample specie composition.
 
-#### For Bovine Rumen Fluid Samples
-Taxonomic annotation for bovine rumen fluid samples can utilize a Kraken2-based gOTUs (genomic operational taxonomic units) database. The Bovine Gastrointestinal Microbial Genome Map (BGMGM) is available for download from Figshare at https://figshare.com/articles/dataset/Microbiome_single-cell_transcriptomics_reveal_functional_heterogeneity_of_metabolic_niches_covering_more_than_2_500_species_in_the_rumen/24844344. 
-#### Steps to Create a Kraken2-Based gOTUs Database:
-1. Mask Ribosomal RNA Genes: Use Barrnap and bedtools to mask ribosomal RNA regions to avoid misclassification.
-```bash
-barrnap <reference_genome.fasta> > rRNA_annotation.gff
-bedtools maskfasta -fi <reference_genome.fasta> -bed rRNA_annotation.gff -fo masked_genomes.fasta
-```
-2. Build the Kraken2 database:
-```bash
-kraken2-build --no-masking --add-to-library masked_genomes.fasta --db kraken2_gOTUs_db
-```
-3. Classify Reads by Kraken2:
-```bash
-kraken2 --db kraken2_gOTUs_db --report your_prefix_kraken2_report.txt \
-        --output your_prefix_kraken2_output.txt your_prefix_2_trimmed.fastq.gz
-```
-4. Calculate Taxonomic Abundance with Bracken:
-```bash
-bracken -d kraken2_gOTUs_db -i your_prefix_kraken2_report.txt -o your_prefix_bracken_output.txt
-```
-5. Classify cells based on informative reads:
-Cells with >50% informative reads are considered accurately annotated.
-Cells below this threshold are labeled with the __like flag after the species name.
-
 #### Construction of Count Matrix:
 To generate a gene expression matrix for single microbes, use the `MIC-Bac` tool. By default, the tool filters abundant bacterial species (>3% of total barcodes), though users can opt to include all genera.
 Running the Command:
