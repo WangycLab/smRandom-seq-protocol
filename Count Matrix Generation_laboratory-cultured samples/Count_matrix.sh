@@ -1,3 +1,6 @@
+# Use umi_tools extract to extract cell barcodes (20 bp) and UMIs (8 bp)
+/public/home/wangycgroup/public/software/bin/umi_tools extract --extract-method=regex --bc-pattern="(?P<cell_1>.{20})(?P<umi_1>.{8}).*" --stdin ${sample}_1.fq.gz \
+--stdout ${sample}_1.fq.extracted --read2-in ${sample}_2.fq.gz --read2-out=${sample}_2.fq.extracted
 
 # STAR Creating a genome index
 STAR --runThreadN N --runMode genomeGenerate --genomeDir STAR_index --genomeFastaFiles $genomeFastaFile --sjdbGTFfile $sjdbGTFfile --sjdbOverhang 122 --sjdbGTFfeatureExon gene --sjdbGTFtagExonParentTranscript gene_id --genomeSAindexNbases 10
